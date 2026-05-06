@@ -1,0 +1,60 @@
+// For format details, see https://aka.ms/devcontainer.json.
+{
+  "name": "trx-parser (Node 24 + .NET)",
+
+  // Base image: typescript-node with Node 24
+  "image": "mcr.microsoft.com/devcontainers/typescript-node:1-24-bookworm",
+
+  "features": {
+    // .NET SDK for trx file generation via `dotnet test`
+    "ghcr.io/devcontainers/features/dotnet:2": {
+      "version": "lts"
+    },
+    // GitHub CLI: useful for Actions development
+    "ghcr.io/devcontainers/features/github-cli:1": {},
+    // Common utilities
+    "ghcr.io/devcontainers/features/common-utils:2": {},
+    // act: run GitHub Actions locally
+    "ghcr.io/devcontainers-contrib/features/act:1": {},
+    // actionlint: lint GitHub Actions workflow files
+    "ghcr.io/devcontainers-contrib/features/actionlint:1": {}
+  },
+
+  // Container environment variables
+  "containerEnv": {
+    "DOTNET_CLI_TELEMETRY_OPTOUT": "1",
+    "DOTNET_NOLOGO": "1"
+  },
+
+  // Install npm dependencies and verify .NET is available
+  "postCreateCommand": "npm ci && dotnet --info",
+
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "dbaeumer.vscode-eslint",
+        "esbenp.prettier-vscode",
+        "orta.vscode-jest",
+        "github.vscode-github-actions",
+        "redhat.vscode-yaml",
+        "ms-dotnettools.csharp",
+        "ms-dotnettools.csdevkit",
+        "github.copilot",
+        "github.copilot-chat"
+      ],
+      "settings": {
+        "editor.formatOnSave": true,
+        "editor.defaultFormatter": "esbenp.prettier-vscode",
+        "eslint.validate": ["typescript"],
+        "[typescript]": {
+          "editor.codeActionsOnSave": {
+            "source.fixAll.eslint": "explicit"
+          }
+        }
+      }
+    }
+  },
+
+  // Run as the non-root 'node' user
+  "remoteUser": "node"
+}
