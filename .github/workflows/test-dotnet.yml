@@ -32,7 +32,9 @@ jobs:
         run: npm ci
 
       - name: Build and package
-        run: npm run all
+        run: |
+          npm run build
+          npm run package
 
       - name: Run dotnet unit tests
         run: dotnet test --logger trx --results-directory TestResults --configuration Debug
