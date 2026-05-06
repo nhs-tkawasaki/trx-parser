@@ -6,10 +6,9 @@
   "image": "mcr.microsoft.com/devcontainers/typescript-node:1-24-bookworm",
 
   "features": {
-    // .NET SDK 10 + 8.0 for trx file generation via `dotnet test`
+    // .NET SDK for trx file generation via `dotnet test`
     "ghcr.io/devcontainers/features/dotnet:2": {
-      "version": "10.0",
-      "additionalVersions": "8.0"
+      "version": "lts"
     },
     // GitHub CLI: useful for Actions development
     "ghcr.io/devcontainers/features/github-cli:1": {},
