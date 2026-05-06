@@ -1,0 +1,33 @@
+name: Test dotnet (past)
+
+on:
+  pull_request:
+
+jobs:
+  integration-test:
+    name: Integration Tests
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+        node-version: [24]
+
+    permissions:
+      contents: read
+      checks: write
+      pull-requests: write
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+
+      - name: Run dotnet unit tests
+        run: dotnet test --logger trx --results-directory TestResults --configuration Debug
+        working-directory: dotnet
+
+      - name: Test with dotnet results
+        uses: NasAmin/trx-parser@v0.6.0
+        with:
+          TRX_PATH: ${{ github.workspace }}/dotnet/TestResults
+          REPO_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPORT_PREFIX: dotnet-${{ matrix.os }}
