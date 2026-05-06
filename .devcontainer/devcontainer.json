@@ -3,7 +3,7 @@
   "name": "trx-parser (Node 24 + .NET)",
 
   // Base image: typescript-node with Node 24
-  "image": "mcr.microsoft.com/devcontainers/typescript-node:1-24-bookworm",
+  "image": "mcr.microsoft.com/devcontainers/typescript-node:24-bookworm",
 
   "features": {
     // .NET SDK for trx file generation via `dotnet test`
