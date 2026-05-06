@@ -44,8 +44,7 @@ export async function transformTrxToJson(
       xmlData.includes('<!ENTITY') ||
       xmlData.includes('<!DOCTYPE') ||
       xmlData.includes('SYSTEM') ||
-      xmlData.includes('PUBLIC') ||
-      (xmlData.includes('&') && xmlData.includes(';'))
+      xmlData.includes('PUBLIC')
     ) {
       core.warning(
         'XML contains potentially dangerous constructs (entities, DTD references, or external references)'
