@@ -1,5 +1,7 @@
 import * as path from 'path'
 
+import * as core from '@actions/core'
+
 import {getAbsoluteFilePaths} from '../src/utils/file-utils'
 import {transformTrxToJson} from '../src/parsers/trx-parser'
 
@@ -48,5 +50,38 @@ describe('when loading xml from a trx file', () => {
     expect(data.TrxData.TestRun.ResultSummary.Counters._total).toEqual(1)
     expect(data.TrxData.TestRun.ResultSummary.Counters._passed).toEqual(1)
     expect(data.TrxData.TestRun.ResultSummary.Counters._failed).toEqual(0)
+  })
+
+  test('does not warn for escaped XML entities or ordinary text', async () => {
+    const warning = jest.spyOn(core, 'warning').mockImplementation()
+    const trxPath = './test-data/security/escaped-entities.trx'
+
+    try {
+      const data = await transformTrxToJson(trxPath)
+
+      expect(data.TrxData.TestRun.ResultSummary._outcome).toEqual('Completed')
+      expect(warning).not.toHaveBeenCalledWith(
+        'XML contains potentially dangerous constructs (entities, DTD references, or external references)'
+      )
+    } finally {
+      warning.mockRestore()
+    }
+  })
+
+  test('warns for raw XML DTD and entity declarations', async () => {
+    const warning = jest.spyOn(core, 'warning').mockImplementation()
+    const trxPath = './test-data/security/dangerous-construct.trx'
+
+    try {
+      await expect(transformTrxToJson(trxPath)).rejects.toThrow(
+        'External entities are not supported'
+      )
+
+      expect(warning).toHaveBeenCalledWith(
+        'XML contains potentially dangerous constructs (entities, DTD references, or external references)'
+      )
+    } finally {
+      warning.mockRestore()
+    }
   })
 })

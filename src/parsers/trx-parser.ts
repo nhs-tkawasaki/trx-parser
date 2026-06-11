@@ -40,12 +40,7 @@ export async function transformTrxToJson(
     }
 
     // Security: Check for suspicious content before parsing
-    if (
-      xmlData.includes('<!ENTITY') ||
-      xmlData.includes('<!DOCTYPE') ||
-      xmlData.includes('SYSTEM') ||
-      xmlData.includes('PUBLIC')
-    ) {
+    if (containsPotentiallyDangerousXmlConstructs(xmlData)) {
       core.warning(
         'XML contains potentially dangerous constructs (entities, DTD references, or external references)'
       )
@@ -145,6 +140,77 @@ function createEmptyTrxDataWrapper(filePath: string): TrxDataWrapper {
       TrxXmlString: ''
     }
   }
+}
+
+function containsPotentiallyDangerousXmlConstructs(xmlData: string): boolean {
+  let searchFrom = 0
+
+  while (searchFrom < xmlData.length) {
+    const declarationStart = xmlData.indexOf('<!', searchFrom)
+    if (declarationStart === -1) {
+      return false
+    }
+
+    if (xmlData.startsWith('<!--', declarationStart)) {
+      const commentEnd = xmlData.indexOf('-->', declarationStart + 4)
+      searchFrom = commentEnd === -1 ? xmlData.length : commentEnd + 3
+      continue
+    }
+
+    if (xmlData.startsWith('<![CDATA[', declarationStart)) {
+      const cdataEnd = xmlData.indexOf(']]>', declarationStart + 9)
+      searchFrom = cdataEnd === -1 ? xmlData.length : cdataEnd + 3
+      continue
+    }
+
+    let keywordStart = declarationStart + 2
+    while (
+      keywordStart < xmlData.length &&
+      isXmlWhitespace(xmlData[keywordStart])
+    ) {
+      keywordStart++
+    }
+
+    if (
+      hasXmlDeclarationKeyword(xmlData, keywordStart, 'ENTITY') ||
+      hasXmlDeclarationKeyword(xmlData, keywordStart, 'DOCTYPE')
+    ) {
+      return true
+    }
+
+    searchFrom = declarationStart + 2
+  }
+
+  return false
+}
+
+function isXmlWhitespace(character: string | undefined): boolean {
+  return (
+    character === ' ' ||
+    character === '\n' ||
+    character === '\r' ||
+    character === '\t'
+  )
+}
+
+function hasXmlDeclarationKeyword(
+  xmlData: string,
+  keywordStart: number,
+  keyword: string
+): boolean {
+  if (
+    xmlData.slice(keywordStart, keywordStart + keyword.length).toUpperCase() !==
+    keyword
+  ) {
+    return false
+  }
+
+  const nextCharacter = xmlData[keywordStart + keyword.length]
+  return (
+    nextCharacter === undefined ||
+    isXmlWhitespace(nextCharacter) ||
+    nextCharacter === '>'
+  )
 }
 
 /**
