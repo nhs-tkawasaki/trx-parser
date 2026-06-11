@@ -40,7 +40,10 @@ export async function transformTrxToJson(
     }
 
     // Security: Check for suspicious content before parsing
-    if (/<!\s*(?:ENTITY|DOCTYPE)\b/i.test(xmlData)) {
+    const xmlDataForSecurityCheck = xmlData
+      .replace(/<!--[\s\S]*?-->/g, '')
+      .replace(/<!\[CDATA\[[\s\S]*?\]\]>/g, '')
+    if (/<!\s*(?:ENTITY|DOCTYPE)\b/i.test(xmlDataForSecurityCheck)) {
       core.warning(
         'XML contains potentially dangerous constructs (entities, DTD references, or external references)'
       )

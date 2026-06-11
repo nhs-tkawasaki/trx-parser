@@ -70,8 +70,9 @@ describe('when loading xml from a trx file', () => {
   <ResultSummary outcome="Completed">
     <Counters total="0" executed="0" passed="0" failed="0" error="0" timeout="0" aborted="0" inconclusive="0" passedButRunAborted="0" notRunnable="0" notExecuted="0" disconnected="0" warning="0" completed="0" inProgress="0" pending="0" />
     <Output>
-      <StdOut>test discoverer &amp; executors are registered; List&lt;T&gt;; a=1&amp;b=2; line&#xD;&#xA;break</StdOut>
+      <StdOut>test discoverer &amp; executors are registered; List&lt;T&gt;; a=1&amp;b=2; line&#xD;&#xA;break<![CDATA[; inert <!DOCTYPE html> and <!ENTITY entity "value"> text]]></StdOut>
     </Output>
+    <!-- inert <!DOCTYPE html> and <!ENTITY entity "value"> text -->
     <RunInfos>
       <RunInfo computerName="PUBLIC &amp; SYSTEM runner" outcome="Warning" timestamp="2021-04-14T12:21:07.3568548+00:00">
         <Text>No test is available. PUBLIC and SYSTEM are ordinary words here.</Text>
