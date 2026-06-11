@@ -73,7 +73,9 @@ describe('when loading xml from a trx file', () => {
     const trxPath = './test-data/security/dangerous-construct.trx'
 
     try {
-      await transformTrxToJson(trxPath).catch(() => undefined)
+      await expect(transformTrxToJson(trxPath)).rejects.toThrow(
+        'External entities are not supported'
+      )
 
       expect(warning).toHaveBeenCalledWith(
         'XML contains potentially dangerous constructs (entities, DTD references, or external references)'
