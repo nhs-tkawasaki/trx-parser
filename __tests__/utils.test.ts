@@ -94,4 +94,34 @@ describe('when loading xml from a trx file', () => {
       fs.rmSync(tempDir, {recursive: true, force: true})
     }
   })
+
+  test('warns for raw XML DTD and entity declarations', async () => {
+    const warning = jest.spyOn(core, 'warning').mockImplementation()
+    const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'trx-parser-'))
+    const trxPath = path.join(tempDir, 'dangerous-construct.trx')
+    fs.writeFileSync(
+      trxPath,
+      `<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE TestRun [
+  <!ENTITY xxe SYSTEM "file:///etc/passwd">
+]>
+<TestRun id="18374034-5a06-43df-a5b0-514438348099" name="@runner 2021-04-14 12:21:07" xmlns="http://microsoft.com/schemas/VisualStudio/TeamTest/2010">
+  <Times creation="2021-04-14T12:21:07.4539825+00:00" queuing="2021-04-14T12:21:07.4539826+00:00" start="2021-04-14T12:21:04.9146955+00:00" finish="2021-04-14T12:21:07.4638160+00:00" />
+  <ResultSummary outcome="Completed">
+    <Counters total="0" executed="0" passed="0" failed="0" error="0" timeout="0" aborted="0" inconclusive="0" passedButRunAborted="0" notRunnable="0" notExecuted="0" disconnected="0" warning="0" completed="0" inProgress="0" pending="0" />
+  </ResultSummary>
+</TestRun>`
+    )
+
+    try {
+      await transformTrxToJson(trxPath).catch(() => undefined)
+
+      expect(warning).toHaveBeenCalledWith(
+        'XML contains potentially dangerous constructs (entities, DTD references, or external references)'
+      )
+    } finally {
+      warning.mockRestore()
+      fs.rmSync(tempDir, {recursive: true, force: true})
+    }
+  })
 })
