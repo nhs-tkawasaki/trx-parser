@@ -335,11 +335,7 @@ async function transformTrxToJson(filePath) {
             throw new Error(`File too large: ${xmlData.length} bytes exceeds ${maxFileSize} bytes limit`);
         }
         // Security: Check for suspicious content before parsing
-        if (xmlData.includes('<!ENTITY') ||
-            xmlData.includes('<!DOCTYPE') ||
-            xmlData.includes('SYSTEM') ||
-            xmlData.includes('PUBLIC') ||
-            (xmlData.includes('&') && xmlData.includes(';'))) {
+        if (/<!\s*(?:ENTITY|DOCTYPE)\b/i.test(xmlData)) {
             core.warning('XML contains potentially dangerous constructs (entities, DTD references, or external references)');
             // For security, we could choose to reject such files entirely
             // throw new Error('XML contains potentially dangerous constructs and cannot be processed')

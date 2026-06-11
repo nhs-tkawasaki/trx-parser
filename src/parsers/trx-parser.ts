@@ -40,12 +40,7 @@ export async function transformTrxToJson(
     }
 
     // Security: Check for suspicious content before parsing
-    if (
-      xmlData.includes('<!ENTITY') ||
-      xmlData.includes('<!DOCTYPE') ||
-      xmlData.includes('SYSTEM') ||
-      xmlData.includes('PUBLIC')
-    ) {
+    if (/<!\s*(?:ENTITY|DOCTYPE)\b/i.test(xmlData)) {
       core.warning(
         'XML contains potentially dangerous constructs (entities, DTD references, or external references)'
       )
